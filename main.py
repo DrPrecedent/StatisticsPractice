@@ -36,7 +36,7 @@ def update(val):
     ax.set_ylim([0, max(ydata)])
     highest_probability = max(ydata)
     best_bet = ydata.index(highest_probability)
-    ax.set_title("Max likely {0} positive results, with {1} probability".format(best_bet, highest_probability))
+    ax.set_title("Max likely {0} positive results, with {1}% probability".format(best_bet, int(highest_probability*100)))
     fig.canvas.draw_idle()
 
 
@@ -59,7 +59,7 @@ ax.set_xlabel('Total Positive Events')
 fig.subplots_adjust( bottom=0.25)
 
 
-#Make a horizontal slider to control the frequency.
+#Make a horizontal slider to control the probability.
 axProb = fig.add_axes([0.25, 0.1, 0.65, 0.03])
 prob_slider = Slider(
     ax=axProb,
@@ -68,11 +68,11 @@ prob_slider = Slider(
     valmax=100,
     valinit=probability*100,
 )
+
 axCount = fig.add_axes([0.5, 0.025, 0.1, 0.05])
 text_box = TextBox(axCount, "Event Attempts: ", textalignment="center")
 text_box.on_submit(update)
-text_box.set_val(str(total_chances))  # Trigger `submit` with the initial string.
-
+text_box.set_val(str(total_chances))
 prob_slider.on_changed(update)
 
 plt.show()
