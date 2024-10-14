@@ -3,7 +3,7 @@
 
 factorial_lookup= {}
 
-#Let's use recursion for factorial
+#Let's use recursion with memoization for factorial
 def factorial (val):
     if val ==0:
         return 1
@@ -13,7 +13,6 @@ def factorial (val):
         x = val * factorial(val -1)
         factorial_lookup[val] = x
         return x
-
 
 # Probability of k positive results in n chances = n!/(k!(n-k)! * p^(k) * (1-p)^(n-k)
 # Datatype limits above ~1000
@@ -34,10 +33,15 @@ def update(val):
     prob_line.set_markersize(100/max(xdata))
     ax.set_xlim([0, int(text_box.text)])
     ax.set_ylim([0, max(ydata)])
+    new_title(ax, ydata)
+    fig.canvas.draw_idle()
+
+def new_title(ax, ydata):
     highest_probability = max(ydata)
     best_bet = ydata.index(highest_probability)
-    ax.set_title("Max likely {0} positive results, with {1}% probability".format(best_bet, int(highest_probability*100)))
-    fig.canvas.draw_idle()
+    ax.set_title(
+        "Most likely {0} positive results, at {1}% probability".format(
+            best_bet, int(highest_probability * 100)))
 
 
 import matplotlib
@@ -50,14 +54,16 @@ probability = float(input("From 0 to 100, what is the estimated probability for 
 total_chances = int(input("How many events will there be?\n: "))
 
 fig, ax = plt.subplots()
-xdata, ydata = prob_array(total_chances, probability)
-
-prob_line, = ax.plot(xdata, ydata, marker = 'o')
 ax.set_xlabel('Total Positive Events')
+ax.set_ylabel('Probability')
+
+xdata, ydata = prob_array(total_chances, probability)
+prob_line, = ax.plot(xdata, ydata, marker = 'o')
+prob_line.set_markersize(100/max(xdata))
+new_title(ax, ydata)
 
 # adjust the main plot to make room for the slider
 fig.subplots_adjust( bottom=0.25)
-
 
 #Make a horizontal slider to control the probability.
 axProb = fig.add_axes([0.25, 0.1, 0.65, 0.03])
@@ -68,11 +74,11 @@ prob_slider = Slider(
     valmax=100,
     valinit=probability*100,
 )
+prob_slider.on_changed(update)
 
 axCount = fig.add_axes([0.5, 0.025, 0.1, 0.05])
 text_box = TextBox(axCount, "Event Attempts: ", textalignment="center")
-text_box.on_submit(update)
 text_box.set_val(str(total_chances))
-prob_slider.on_changed(update)
+text_box.on_submit(update)
 
 plt.show()
